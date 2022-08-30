@@ -1,0 +1,7 @@
+{
+    "files.associations": {
+        "gpio.h": "c",
+        "stm32_peps.h": "c"
+    },
+    "C_Cpp.errorSquiggles": "Disabled"
+}
