@@ -57,8 +57,8 @@ uint32_t SysTick_getCount(void) {
 }
 
 void SysTick_update(uint32_t tick) {
-    sysTick_disable();
-    STK->LOAD = ((clockRateMHz * toMicroSeconds * tick) - 1);
+    SysTick_disable();
+    STK->LOAD = ((clockRateMHz * 1000 * tick) - 1);
     mscount = 0;
 }
 
@@ -68,7 +68,7 @@ uint32_t SysTick_getTime(void) {
 
 void SysTick_delay(uint16_t ticks){
     for(int i=0; i<ticks; i++) {
-        while(!SysTick_GetStatus());
+        while(!SysTick_getStatus());
     }
 }
 

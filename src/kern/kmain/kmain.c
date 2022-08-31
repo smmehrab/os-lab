@@ -1,8 +1,8 @@
 #include "../include/sys_init.h"
 #include "../include/kmain.h"
 #include "../include/kstdio.h"
-#include "../arch/stm32f446re/include/dev/usart.h"
 #include "../arch/stm32f446re/include/sys/stm32_peps.h"
+#include "../arch/stm32f446re/include/sys/sys.h"
 #include <stdint.h>
 
 void demo_kprintf_kscanf() {
@@ -78,12 +78,21 @@ void kmain(void) {
 	kprintf((uint8_t*)"%s",(uint8_t*)"###########################################\n");
 	kprintf((uint8_t*)"%s",(uint8_t*)"\n> ... Welcome ... \n");
 
+	SysTick_enable();
+	int startTime = 0;
+	int endTime= 0;
+	uint8_t stopCharacter;
+
 	// loop
 	while(1){
-		
 		// demo_kprintf_kscanf();
 
+		startTime = SysTick_getTime();
+
+		kprintf((uint8_t*)"%s",(uint8_t*)"Timer Running...");
+		kscanf((uint8_t*)"%c", &stopCharacter);
 		
+		endTime = SysTick_getTime();
 
 		//you can change the following line by replacing a delay function
 		for(uint32_t i=0;i<1000000;i++){}	
