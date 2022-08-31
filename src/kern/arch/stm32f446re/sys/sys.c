@@ -1,5 +1,6 @@
 #include "../include/sys/sys.h"
 #include "../include/dev/usart.h"
+#include "../../../include/kstdio.h"
 
 volatile uint32_t mscount;
 
@@ -83,4 +84,5 @@ uint8_t SysTick_getStatus(void) {
 // SysTick ISR 
 void SysTick_Handler(void) {
     mscount += ((STK->LOAD+1)/(clockRateMHz*1000));
+    kprintf((uint8_t*)"%d", (uint8_t*)&mscount);
 }
