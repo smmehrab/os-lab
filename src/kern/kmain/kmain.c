@@ -67,39 +67,35 @@ void demo_kprintf_kscanf() {
 	kprintf((uint8_t*)"%s",(uint8_t*)"-------------------------------------------\n");
 }
 
-void test(void){
-	/** Test Case: print countVal and countFlag until it is set **/
+void countFlagTest(void) {
+	uint8_t c;
+	kprintf((uint8_t*)"%s",(uint8_t*)"Run COUNTFLAG Test? [Press Enter]");
+	kscanf((uint8_t*)"%c", &c);
+	kprintf((uint8_t*)"%s",(uint8_t*)"----------------------");
+	kprintf((uint8_t*)"%s",(uint8_t*)"[COUNTFLAG Test]");
+	kprintf((uint8_t*)"%s",(uint8_t*)"----------------------");
 
 	SysTick_disable();
 	SysTick_enable();
-	
-	uint8_t outputLine[200];
-	uint8_t stkValString[200];
-	uint8_t msCountString[200];
 
-	uint8_t countFlag = SysTick_getStatus();
+	uint32_t countFlag = SysTick_getStatus();
 	uint32_t stkVal = SysTick_getCount();
 	uint32_t msCount = SysTick_getTime();
 
 	while(1) {
-		intToString(stkValString, stkVal);
-		intToString(msCountString, msCount);
-
-		outputLine[0] = '';
-		concatString(outputLine[1], )
-
-
-		kprintf((uint8_t *)"%s",(uint8_t *) &"SysTick VAl : ");
-		kprintf((uint8_t *)"%d",(uint8_t *) &tickCount);
-		kprintf((uint8_t *)"%s",(uint8_t *) &"  ");
-		kprintf((uint8_t *)"%s",(uint8_t *) &"mscount : ");
-		kprintf((uint8_t *)"%d",(uint8_t *) &timeMS);
-		kprintf((uint8_t *)"%s",(uint8_t *) &"  ");
-		kprintf((uint8_t *)"%s",(uint8_t *) &"COUNTFLAG : 0");
-		kprintf((uint8_t *)"%s",(uint8_t *) &"\n");
+		kprintf((uint8_t*)"%s",(uint8_t*) &"[COUNTFLAG]");
+		kprintf((uint8_t*)"%d",(uint8_t*) &countFlag);
+		kprintf((uint8_t*)"%s",(uint8_t*) &"[STK->VAL]");
+		kprintf((uint8_t*)"%d",(uint8_t*) &stkVal);
+		kprintf((uint8_t*)"%s",(uint8_t*) &"[MSCOUNT]");
+		kprintf((uint8_t*)"%d",(uint8_t*) &msCount);
+		kprintf((uint8_t*)"%s",(uint8_t*)"----------------------");
 
 		if(countFlag==1) {
-			kprintf((uint8_t *)"%s",(uint8_t *) &"\n");
+			kprintf((uint8_t*)"%s",(uint8_t*) &"[Congratulations]");
+			kprintf((uint8_t*)"%s",(uint8_t*) &"COUNTFLAG became 1");
+			kprintf((uint8_t*)"%s",(uint8_t*) &"Time to call SysTick_Handler\n\n");
+			kprintf((uint8_t*)"%s",(uint8_t*)"----------------------");
 			break;
 		}
 
@@ -109,63 +105,80 @@ void test(void){
 	}
 }
 
-void test2(uint32_t setTimeMS){
-	/** Count upto TimeMS **/
+void timeTracking() {
+	uint8_t c;
+	kprintf((uint8_t*)"%s",(uint8_t*)"Run Time Tracking Test? [Press Enter]");
+	kscanf((uint8_t*)"%c", &c);
+	kprintf((uint8_t*)"%s",(uint8_t*)"----------------------");
+	kprintf((uint8_t*)"%s",(uint8_t*)"[Time Tracking Test]");
+	kprintf((uint8_t*)"%s",(uint8_t*)"----------------------");
 
-	SysTick_Disable();
-	SysTick_Enable();
+	uint32_t time;
+	kprintf((uint8_t*)"%s",(uint8_t*)"Time (ms) to Track for:");
+	kscanf((uint8_t*)"%d", (uint8_t*)&time);
+
+	SysTick_disable();
+	SysTick_enable();
 	
-	uint8_t stat = SysTick_GetStatus() + '0';
-	uint32_t tickCount = SysTick_GetCount();		// Expected to start from LOAD VALUE
-	uint32_t timeMS = SysTickGetTime();				// Expected to start from 0
-	// systick delay
-	while(timeMS <= setTimeMS){
-		kprintf((uint8_t *)"%s",(uint8_t *) &"SysTick VAl : ");
-		kprintf((uint8_t *)"%d",(uint8_t *) &tickCount);
-		kprintf((uint8_t *)"%s",(uint8_t *) &"  ");
-		kprintf((uint8_t *)"%s",(uint8_t *) &"mscount : ");
-		kprintf((uint8_t *)"%d",(uint8_t *) &timeMS);
-		kprintf((uint8_t *)"%s",(uint8_t *) &"  ");
-		kprintf((uint8_t *)"%s",(uint8_t *) &"COUNTFLAG : ");
-		kprintf((uint8_t *)"%c",(uint8_t *) &stat);
-		kprintf((uint8_t *)"%s",(uint8_t *) &"\n");
-		stat = SysTick_GetStatus() + '0';
-		tickCount = SysTick_GetCount();
-		timeMS = SysTickGetTime();
-	}	
-	kprintf((uint8_t *)"%s",(uint8_t *) &"\n");
+	uint32_t countFlag = SysTick_getStatus();
+	uint32_t stkVal = SysTick_getCount();
+	uint32_t msCount = SysTick_getTime();
+
+	kprintf((uint8_t*)"%s",(uint8_t*)"----------------------");
+
+	while(msCount <= time) {
+		kprintf((uint8_t*)"%s",(uint8_t*) &"[COUNTFLAG]");
+		kprintf((uint8_t*)"%d",(uint8_t*) &countFlag);
+		kprintf((uint8_t*)"%s",(uint8_t*) &"[STK->VAL]");
+		kprintf((uint8_t*)"%d",(uint8_t*) &stkVal);
+		kprintf((uint8_t*)"%s",(uint8_t*) &"[MSCOUNT]");
+		kprintf((uint8_t*)"%d",(uint8_t*) &msCount);
+		kprintf((uint8_t*)"%s",(uint8_t*)"----------------------");
+		countFlag = SysTick_getStatus();
+		stkVal = SysTick_getCount();
+		msCount = SysTick_getTime();
+	}
+	kprintf((uint8_t*)"%s",(uint8_t*) &"[Congratulations]");
+	kprintf((uint8_t*)"%d",(uint8_t*) &time);
+	kprintf((uint8_t*)"%s",(uint8_t*) &"Tracked successfully.");
+	kprintf((uint8_t*)"%s",(uint8_t*)"----------------------");
+}
+
+void runSysTickTests() {
+	countFlagTest();
+	timeTracking();
 }
 
 void kmain(void) {
 	__sys_init();
 
-	// title
+	// OS Title
 	kprintf((uint8_t*)"%s",(uint8_t*)"###########################################\n");
 	kprintf((uint8_t*)"%s",(uint8_t*)"Booting OS CSE: ");
 	kprintf((uint8_t*)"%s",(uint8_t*)"Version: 1.0\n");
 	kprintf((uint8_t*)"%s",(uint8_t*)"###########################################\n");
 	kprintf((uint8_t*)"%s",(uint8_t*)"Welcome ...");
 
-	SysTick_enable();
 	int startTime = 0;
 	int endTime= 0;
 	int time = 0;
 	uint8_t c;
 
-	// loop
-	while(1){
-		// demo_kprintf_kscanf();
-		// demo_systick();
+	SysTick_enable();
+
+	// Program Loop
+	while(1) {
 
 		startTime = SysTick_getTime();
-
+		
 		kprintf((uint8_t*)"%s",(uint8_t*)"Press Enter to Get Time (ms)");
 		kscanf((uint8_t*)"%c", &c);
 		
 		endTime = SysTick_getTime();
-		time += endTime - startTime;
-
+		time += (endTime - startTime);
 		kprintf((uint8_t*)"%d",(uint8_t*)&time);
+
+		runSysTickTests();
 
 		//you can change the following line by replacing a delay function
 		for(uint32_t i=0;i<1000000;i++){}

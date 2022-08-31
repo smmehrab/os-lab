@@ -18,9 +18,10 @@ void SysTick_init(uint32_t);
 void SysTick_enable(void);
 void SysTick_disable(void);
 uint32_t SysTick_getCount(void);
-uint8_t SysTick_getStatus(void);
 void SysTick_update(uint32_t newTick);
 uint32_t SysTick_getTime(void);
+
+uint32_t SysTick_getStatus(void);
 
 void SysTick_Handler(void);
 
