@@ -63,6 +63,7 @@ void SysTick_update(uint32_t tick) {
     SysTick_disable();
     STK->LOAD = ((clockRateMHz * 1000U * tick) - 1);
     mscount = 0;
+    SysTick_enable();
 }
 
 uint32_t SysTick_getTime(void) {
