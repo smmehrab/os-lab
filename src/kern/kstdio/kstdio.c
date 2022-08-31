@@ -32,7 +32,7 @@ void handleInteger(uint8_t* source, uint8_t* destination, char ioType);
 void handleHexadecimal(uint8_t* source, uint8_t* destination, char ioType);
 void handleFloat(uint8_t* source, uint8_t* destination, char ioType);
 // Main
-void kprintf(uint8_t *format, uint8_t* outvar);
+void kprintf(uint8_t *format, uint8_t* outvar, uint8_t *endString);
 void kscanf(uint8_t *format, uint8_t* invar);
 
 /***************************************************************
@@ -318,7 +318,7 @@ void handleFloat(uint8_t* source, uint8_t* destination, char ioType) {
 kprintf()
 ***************************************************************/
 
-void kprintf(uint8_t *format, uint8_t* outvar) {
+void kprintf(uint8_t *format, uint8_t* outvar, uint8_t *endString) {
     uint8_t output[10000];
     char c = format[1];
     switch (c) {
@@ -342,7 +342,7 @@ void kprintf(uint8_t *format, uint8_t* outvar) {
     }
     _USART_WRITE(USART2,(uint8_t*)"> ");
     _USART_WRITE(USART2,(uint8_t*)output);
-    _USART_WRITE(USART2,(uint8_t*)"\n");
+    _USART_WRITE(USART2,(uint8_t*)endString);
 }
 
 /***************************************************************
