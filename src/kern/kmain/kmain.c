@@ -191,10 +191,58 @@ void sysTickUpdateTest() {
 	kprintf((uint8_t*)"%s",(uint8_t*)"----------------------");
 }
 
+void sysTickDelayTest() {
+	uint8_t c;
+	kprintf((uint8_t*)"%s",(uint8_t*)"Run SysTick Delay Test? [Press Enter]");
+	kscanf((uint8_t*)"%c", &c);
+	kprintf((uint8_t*)"%s",(uint8_t*)"----------------------");
+	kprintf((uint8_t*)"%s",(uint8_t*)"[SysTick Delay Test]");
+	kprintf((uint8_t*)"%s",(uint8_t*)"----------------------");
+
+	SysTick_disable();
+	SysTick_enable();
+
+	uint32_t ticks = 0;
+
+	kprintf((uint8_t*)"%s",(uint8_t*)"Enter Delay Ticks");
+	kscanf((uint8_t*)"%d", (uint8_t*)&ticks);
+	
+	uint32_t countFlag = SysTick_getStatus();
+	uint32_t stkVal = SysTick_getCount();
+	uint32_t msCount = SysTick_getTime();
+
+	kprintf((uint8_t*)"%s",(uint8_t*)"----------------------");
+	kprintf((uint8_t*)"%s",(uint8_t*) &"[COUNTFLAG]");
+	kprintf((uint8_t*)"%d",(uint8_t*) &countFlag);
+	kprintf((uint8_t*)"%s",(uint8_t*) &"[STK->VAL]");
+	kprintf((uint8_t*)"%d",(uint8_t*) &stkVal);
+	kprintf((uint8_t*)"%s",(uint8_t*) &"[MSCOUNT]");
+	kprintf((uint8_t*)"%d",(uint8_t*) &msCount);
+	kprintf((uint8_t*)"%s",(uint8_t*)"----------------------");
+
+	kprintf((uint8_t*)"%s",(uint8_t*)"delay started...");
+	SysTick_delay(ticks);
+	kprintf((uint8_t*)"%s",(uint8_t*)"delay ended...");
+
+	countFlag = SysTick_getStatus();
+	stkVal = SysTick_getCount();
+	msCount = SysTick_getTime();
+
+	kprintf((uint8_t*)"%s",(uint8_t*)"----------------------");
+	kprintf((uint8_t*)"%s",(uint8_t*) &"[COUNTFLAG]");
+	kprintf((uint8_t*)"%d",(uint8_t*) &countFlag);
+	kprintf((uint8_t*)"%s",(uint8_t*) &"[STK->VAL]");
+	kprintf((uint8_t*)"%d",(uint8_t*) &stkVal);
+	kprintf((uint8_t*)"%s",(uint8_t*) &"[MSCOUNT]");
+	kprintf((uint8_t*)"%d",(uint8_t*) &msCount);
+	kprintf((uint8_t*)"%s",(uint8_t*)"----------------------");
+}
+
 void runSysTickTests() {
 	countFlagTest();
 	timeTrackingTest();
 	sysTickUpdateTest();
+	sysTickDelayTest();
 }
 
 void kmain(void) {
