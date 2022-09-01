@@ -34,5 +34,15 @@
 
 #define INTERRUPT_ENABLE()  do{__asm volatile ("MOV R0,#0x0"); asm volatile("MSR PRIMASK,R0"); } while(0)
 
+// i/o
+void demo_kprintf_kscanf();
+
+// systick
+void countFlagTest();
+void timeTrackingTest();
+void sysTickUpdateTest();
+void sysTickDelayTest();
+void runSysTickTests();
+
 #endif /* KMAIN_H */
 

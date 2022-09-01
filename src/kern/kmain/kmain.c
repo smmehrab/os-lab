@@ -8,7 +8,7 @@
 /***************************************************************
 functions hierarchy
 ***************************************************************/
-void countFlagTest(void);
+void countFlagTest();
 void timeTrackingTest();
 void sysTickUpdateTest();
 void sysTickDelayTest();
@@ -80,7 +80,7 @@ void demo_kprintf_kscanf() {
 	kprintf((uint8_t*)"%s",(uint8_t*)"-------------------------------------------\n");
 }
 
-void countFlagTest(void) {
+void countFlagTest() {
 	uint8_t c;
 	kprintf((uint8_t*)"%s",(uint8_t*)"Run COUNTFLAG Test? [Press Enter]");
 	kscanf((uint8_t*)"%c", &c);
