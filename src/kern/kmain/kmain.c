@@ -5,6 +5,19 @@
 #include "../arch/stm32f446re/include/sys/sys.h"
 #include <stdint.h>
 
+/***************************************************************
+functions hierarchy
+***************************************************************/
+void countFlagTest(void);
+void timeTrackingTest();
+void sysTickUpdateTest();
+void sysTickDelayTest();
+/***************************************************************/
+void runSysTickTests();
+/***************************************************************/
+void kmain(void);
+/***************************************************************/
+
 void demo_kprintf_kscanf() {
 	uint8_t inputString[200];
 	uint8_t inputCharacter;
