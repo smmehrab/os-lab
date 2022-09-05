@@ -67,7 +67,9 @@ void SysTick_update(uint32_t tick) {
 }
 
 uint32_t SysTick_getTime(void) {
-    return mscount;
+    uint32_t alreadyElapsed = (STK->LOAD - SysTick_getCount());
+    alreadyElapsed = ((alreadyElapsed)/(clockRateMHz*1000));
+    return mscount + alreadyElapsed;
 }
 
 void SysTick_delay(uint16_t ticks){
