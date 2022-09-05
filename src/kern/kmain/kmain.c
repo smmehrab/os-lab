@@ -259,16 +259,16 @@ void runSysTickTests() {
 }
 
 void sysTickDemo() {
-	startTime = SysTick_getTime();
+	// startTime = SysTick_getTime();
 		
-	kprintf((uint8_t*)"%s",(uint8_t*)"Press Enter to Get Time (ms)");
-	kscanf((uint8_t*)"%c", &c);
+	// kprintf((uint8_t*)"%s",(uint8_t*)"Press Enter to Get Time (ms)");
+	// kscanf((uint8_t*)"%c", &c);
 		
-	endTime = SysTick_getTime();
-	time += (endTime - startTime);
-	kprintf((uint8_t*)"%d",(uint8_t*)&time);
+	// endTime = SysTick_getTime();
+	// time += (endTime - startTime);
+	// kprintf((uint8_t*)"%d",(uint8_t*)&time);
 
-	runSysTickTests();
+	// runSysTickTests();
 }
 
 void kmain(void) {
@@ -282,16 +282,25 @@ void kmain(void) {
 	kprintf((uint8_t*)"%s",(uint8_t*)"Welcome ...");
 
 	// SysTick Demo
-	// int startTime = 0;
-	// int endTime= 0;
-	// int time = 0;
-	// uint8_t c;
+	int startTime = 0;
+	int endTime= 0;
+	int time = 0;
+	uint8_t c;
 
-	// SysTick_enable();
+	SysTick_enable();
 
 	// Program Loop
 	while(1) {
+		startTime = SysTick_getTime();
+			
+		kprintf((uint8_t*)"%s",(uint8_t*)"Press Enter to Get Time (ms)");
+		kscanf((uint8_t*)"%c", &c);
+			
+		endTime = SysTick_getTime();
+		time += (endTime - startTime);
+		kprintf((uint8_t*)"%d",(uint8_t*)&time);
 
+		runSysTickTests();
 		//you can change the following line by replacing a delay function
 		for(uint32_t i=0;i<1000000;i++){}
 	}
