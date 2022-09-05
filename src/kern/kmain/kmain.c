@@ -179,7 +179,7 @@ void sysTickUpdateTest() {
 	kprintf((uint8_t*)"%d",(uint8_t*)&tick);
 	kprintf((uint8_t*)"%s",(uint8_t*)"----------------------");
 
-	uint32_t time = 5000;
+	uint32_t time = 1000;
 	uint32_t countFlag = SysTick_getStatus();
 	uint32_t stkVal = SysTick_getCount();
 	uint32_t msCount = SysTick_getTime();
@@ -258,6 +258,19 @@ void runSysTickTests() {
 	sysTickDelayTest();
 }
 
+void sysTickDemo() {
+	startTime = SysTick_getTime();
+		
+	kprintf((uint8_t*)"%s",(uint8_t*)"Press Enter to Get Time (ms)");
+	kscanf((uint8_t*)"%c", &c);
+		
+	endTime = SysTick_getTime();
+	time += (endTime - startTime);
+	kprintf((uint8_t*)"%d",(uint8_t*)&time);
+
+	runSysTickTests();
+}
+
 void kmain(void) {
 	__sys_init();
 
@@ -268,26 +281,16 @@ void kmain(void) {
 	kprintf((uint8_t*)"%s",(uint8_t*)"###########################################\n");
 	kprintf((uint8_t*)"%s",(uint8_t*)"Welcome ...");
 
-	int startTime = 0;
-	int endTime= 0;
-	int time = 0;
-	uint8_t c;
+	// SysTick Demo
+	// int startTime = 0;
+	// int endTime= 0;
+	// int time = 0;
+	// uint8_t c;
 
-	SysTick_enable();
+	// SysTick_enable();
 
 	// Program Loop
 	while(1) {
-
-		startTime = SysTick_getTime();
-		
-		kprintf((uint8_t*)"%s",(uint8_t*)"Press Enter to Get Time (ms)");
-		kscanf((uint8_t*)"%c", &c);
-		
-		endTime = SysTick_getTime();
-		time += (endTime - startTime);
-		kprintf((uint8_t*)"%d",(uint8_t*)&time);
-
-		runSysTickTests();
 
 		//you can change the following line by replacing a delay function
 		for(uint32_t i=0;i<1000000;i++){}
