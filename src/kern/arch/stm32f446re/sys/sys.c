@@ -2,6 +2,8 @@
 #include "../include/dev/usart.h"
 #include "../../../include/kstdio.h"
 
+/******************************************* SysTick *******************************************/
+
 volatile uint32_t mscount;
 
 // AHB (180 MHz)
@@ -93,4 +95,79 @@ void SysTick_Handler(void) {
     mscount += ((STK->LOAD+1)/(clockRateMHz*1000));
     // Debug
     // kprintf((uint8_t*)"%d", (uint8_t*)&mscount);
+}
+
+/******************************************* NVIC *******************************************/
+
+void __NVIC_SetPriority (IRQn_Type IRQn, uint32_t priority) {
+
+}
+
+uint32_t __NVIC_GetPriority(IRQn_Type IRQn) {
+    uint32_t priority;
+    return priority;
+}
+
+void __NVIC_EnableIRQn(IRQn_Type IRQn) {
+
+}
+
+void __NVIC_DisableIRQn(IRQn_Type IRQn)  {
+
+}
+
+void __disable_irq(void) {
+
+}
+
+void __set_BASEPRI(uint32_t value) {
+
+}
+
+void __enable_irq(void) {
+
+}
+
+void __unset_BASEPRI(uint32_t value) {
+
+}
+
+void __set_PRIMASK(uint32_t priMask) {
+
+}
+
+uint32_t __get_PRIMASK(void) {
+    uint32_t result;
+    return result;
+}
+
+void __enable_fault_irq(void) {
+
+}
+
+void __set_FAULTMASK(uint32_t faultMask) {
+
+}
+
+void __disable_fault_irq(void) {
+
+}
+
+uint32_t __get_FAULTMASK(void) {
+    uint32_t result;
+    return result;
+}
+
+void __clear_pending_IRQn(IRQn_Type irqn) {
+
+}
+
+uint32_t __get_pending_IRQn(IRQn_Type irqn) {
+    uint32_t result;
+    return result;
+}
+
+uint32_t __NVIC_GetActive(IRQn_Type irqn) {
+    uint32_t result;
+    return result;
 }
