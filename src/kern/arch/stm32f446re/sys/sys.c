@@ -101,10 +101,46 @@ void SysTick_Handler(void) {
 
 void __NVIC_SetPriority (IRQn_Type IRQn, uint32_t priority) {
 
+    /*
+    programming manual - p201
+    The processor implements only bits[7:4] of each field, 
+    bits[3:0] read as zero and ignore writes.
+    */
+
+    if (IRQn >= 0) {
+        NVIC->IP[IRQn] = (uint8_t)(priority << 4);
+    }
+
+    else {
+        /*
+        programming manual - p216
+        -------------------------------------------------------
+        Memory management fault     PRI_4     |     SHPR1
+        Bus fault                   PRI_5     |
+        Usage fault                 PRI_6     |
+
+        SVCall                      PRI_11    |     SHPR2
+
+        PendSV                      PRI_14    |     SHPR3
+        SysTick                     PRI_15    |
+        -------------------------------------------------------
+
+        So, IRQn & 15 = PRI
+        SHPR[12]
+        */
+
+        SCB->SHPR[(IRQn & 15)-4] = (uint8_t)(priority << 4);
+    }
 }
 
 uint32_t __NVIC_GetPriority(IRQn_Type IRQn) {
     uint32_t priority;
+    if (IRQn >= 0) {
+        priority = (NVIC->IP[IRQn] >> 4);
+    }
+    else {
+        priority = (SCB->SHPR[(IRQn & 15)-4] >> 4);
+    }
     return priority;
 }
 
