@@ -145,69 +145,98 @@ uint32_t __NVIC_GetPriority(IRQn_Type IRQn) {
 }
 
 void __NVIC_EnableIRQn(IRQn_Type IRQn) {
-    uint32_t index = IRQn / 32;
+    uint32_t index = IRQn >> 5;
     uint32_t offset = IRQn % 32;
     NVIC->ISER[index] = (1 << offset);
 }
 
 void __NVIC_DisableIRQn(IRQn_Type IRQn)  {
-    uint32_t index = IRQn / 32;
+    uint32_t index = IRQn >> 5;
     uint32_t offset = IRQn % 32;
     NVIC->ICER[index] = (1 << offset);
 }
 
-void __disable_irq(void) {
+/*
+- The PRIMASK register prevents activation of all exceptions with configurable priority.
 
+- The FAULTMASK register prevents activation of all exceptions except for Non-Maskable
+  Interrupt (NMI).
+
+- The BASEPRI register defines the minimum priority for exception processing. When
+  BASEPRI is set to a nonzero value, it prevents the activation of all exceptions with same or
+  lower priority level as the BASEPRI value.
+*/
+
+void __disable_irq(void) {
+    __ASM volatile ("cpsie i" : : : "memory");
 }
 
 void __set_BASEPRI(uint32_t value) {
-
+    /*
+    programming manual - p24
+    BASEPRI[7:4] Priority mask bits
+    */
+    value = (value << 4);
+    __ASM volatile("MSR BASEPRI, %0" : : "r" (value) : "memory");
 }
 
 void __enable_irq(void) {
-
+    __set_PRIMASK(0);
 }
 
 void __unset_BASEPRI(uint32_t value) {
-
+    // cmsis
+    __ASM volatile ("MSR BASEPRI, %0" : : "r" (value) : "memory");
 }
 
 void __set_PRIMASK(uint32_t priMask) {
-
+    // cmsis
+    __ASM volatile ("MSR PRIMASK, %0" : : "r" (priMask) : "memory");
 }
 
 uint32_t __get_PRIMASK(void) {
-    uint32_t result;
-    return result;
+    // cmsis
+    uint32_t value;
+    __ASM volatile ("MRS %0, PRIMASK" : "=r" (value));
+    return value;
 }
 
 void __enable_fault_irq(void) {
-
+    // cmsis
+    __ASM volatile ("cpsie f" : : : "memory");
 }
 
 void __set_FAULTMASK(uint32_t faultMask) {
-
+    // cmsis
+    __ASM volatile ("MSR faultmask, %0" : : "r" (faultMask) : "memory");
 }
 
 void __disable_fault_irq(void) {
-
+    // cmsis
+    __ASM volatile ("cpsid f" : : : "memory");
 }
 
 uint32_t __get_FAULTMASK(void) {
-    uint32_t result;
-    return result;
+    // cmsis
+    uint32_t value;
+    __ASM volatile ("MRS %0, faultmask" : "=r" (value));
+    return value;
 }
 
-void __clear_pending_IRQn(IRQn_Type irqn) {
-
+void __clear_pending_IRQn(IRQn_Type IRQn) {
+    uint32_t index = IRQn >> 5;
+    uint32_t offset = IRQn % 32;
+    NVIC->ICPR[index] |= (uint32_t)(1 << offset);
 }
 
-uint32_t __get_pending_IRQn(IRQn_Type irqn) {
-    uint32_t result;
-    return result;
+uint32_t __get_pending_IRQn(IRQn_Type IRQn) {
+    uint32_t index = IRQn >> 5;
+    uint32_t offset = IRQn % 32;
+    return ((NVIC->ISPR[index]) & (uint32_t)(1 << offset));
 }
 
-uint32_t __NVIC_GetActive(IRQn_Type irqn) {
-    uint32_t result;
-    return result;
+uint32_t __NVIC_GetActive(IRQn_Type IRQn) {
+    uint32_t index = IRQn >> 5;
+    uint32_t offset = IRQn % 32;
+    return (NVIC->IABR[index] & (1 << offset));
 }
