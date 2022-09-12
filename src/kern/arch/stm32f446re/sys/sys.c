@@ -168,7 +168,7 @@ void __NVIC_DisableIRQn(IRQn_Type IRQn)  {
 */
 
 void __disable_irq(void) {
-    __ASM volatile ("cpsie i" : : : "memory");
+    __ASM volatile ("cpsid i" : : : "memory");
 }
 
 void __set_BASEPRI(uint32_t value) {
@@ -181,7 +181,7 @@ void __set_BASEPRI(uint32_t value) {
 }
 
 void __enable_irq(void) {
-    __set_PRIMASK(0);
+    __ASM volatile ("cpsie i" : : : "memory");
 }
 
 void __unset_BASEPRI(uint32_t value) {
