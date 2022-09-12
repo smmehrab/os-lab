@@ -145,11 +145,15 @@ uint32_t __NVIC_GetPriority(IRQn_Type IRQn) {
 }
 
 void __NVIC_EnableIRQn(IRQn_Type IRQn) {
-
+    uint32_t index = IRQn / 32;
+    uint32_t offset = IRQn % 32;
+    NVIC->ISER[index] = (1 << offset);
 }
 
 void __NVIC_DisableIRQn(IRQn_Type IRQn)  {
-
+    uint32_t index = IRQn / 32;
+    uint32_t offset = IRQn % 32;
+    NVIC->ICER[index] = (1 << offset);
 }
 
 void __disable_irq(void) {
