@@ -1,9 +1,7 @@
 #ifndef __SYS_TICK_H
 #define __SYS_TICK_H
-#include"stdint.h"
 
-#ifndef __SYS_H
-#define __SYS_H 
+#include"stdint.h"
 
 #ifndef __ASM
 #define __ASM __asm

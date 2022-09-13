@@ -5,17 +5,12 @@
 #include "../arch/stm32f446re/include/sys/sys.h"
 #include <stdint.h>
 
-/***************************************************************
-functions hierarchy
-***************************************************************/
-void countFlagTest();
-void timeTrackingTest();
-void sysTickUpdateTest();
-void sysTickDelayTest();
-/***************************************************************/
-void runSysTickTests();
-/***************************************************************/
-void kmain(void);
+/*
+void nvicDemo();
+USART2_Handler();
+kmain();
+*/
+
 /***************************************************************/
 
 void demo_kprintf_kscanf() {
@@ -79,6 +74,8 @@ void demo_kprintf_kscanf() {
 
 	kprintf((uint8_t*)"%s",(uint8_t*)"-------------------------------------------\n");
 }
+
+/***************************************************************/
 
 void countFlagTest() {
 	uint8_t c;
@@ -271,6 +268,121 @@ void sysTickDemo() {
 	// runSysTickTests();
 }
 
+/***************************************************************/
+
+uint32_t interruptCount;
+
+bool flag;
+int index;
+char temp;
+char input[100];
+
+char mask_all[] = "mask_all\n";
+char unmask_all[] = "unmask_all\n";
+
+char set_primask[] = "set_primask\n";
+char set_basepri[] = "set_basepri\n";
+char set_faultmask[] = "set_faultmask\n";
+
+char disable_nvic[] = "disable_nvic\n";
+
+void nvicDemo() {
+	uint8_t c;
+	uint32_t priority;
+	
+	kprintf((uint8_t*)"%s",(uint8_t*)"[NVIC Demo]\n");
+	kprintf((uint8_t*)"%s",(uint8_t*)"Enable USART2_IRQn? [Press Enter]");
+	kscanf((uint8_t*)"%c", &c);
+
+	// RXNEIE = 1
+	USART2->CR1 |= (1 << 5);
+
+	kprintf((uint8_t*)"%s",(uint8_t*)"");
+
+	__enable_irq();
+	kprintf((uint8_t*)"%s",(uint8_t*)"__enable_irq() [Called]");
+
+	__NVIC_EnableIRQn(USART2_IRQn);
+	kprintf((uint8_t*)"%s",(uint8_t*)"__NVIC_EnableIRQn(USART2_IRQn) [Called]");
+
+	index = 0;
+	flag = false;
+	interruptCount = 0;
+	kprintf((uint8_t*)"%s",(uint8_t*)"USART2_IRQn [Enabled]");
+
+	kprintf((uint8_t*)"%s",(uint8_t*)"");
+	priority = __NVIC_GetPriority(USART2_IRQn);
+	kprintf((uint8_t*)"%s",(uint8_t*)"__NVIC_GetPriority(USART2_IRQn) [Called]");
+	kprintf((uint8_t*)"%s",(uint8_t*)"[Priority Received]");
+	kprintf((uint8_t*)"%d",(uint8_t*)&priority);
+
+	kprintf((uint8_t*)"%s",(uint8_t*)"");
+	__NVIC_SetPriority(USART2_IRQn, 2);
+	kprintf((uint8_t*)"%s",(uint8_t*)"__NVIC_SetPriority(USART2_IRQn, 2) [Called]");
+	kprintf((uint8_t*)"%s",(uint8_t*)"[Priority Set 2]");
+
+	kprintf((uint8_t*)"%s",(uint8_t*)"");
+	priority = __NVIC_GetPriority(USART2_IRQn);
+	kprintf((uint8_t*)"%s",(uint8_t*)"__NVIC_GetPriority(USART2_IRQn) [Called]");
+	kprintf((uint8_t*)"%s",(uint8_t*)"[Priority Received]");
+	kprintf((uint8_t*)"%d",(uint8_t*)&priority);
+
+	kprintf((uint8_t*)"%s",(uint8_t*)"");
+}
+
+bool isEqual(char a[], char b[], int len){
+	for (int i=0; i<=len; i++) {
+		if(a[i]!=b[i]) {
+			return false;
+		}
+	}
+	return true;
+}
+
+void USART2_Handler(void){
+	// RXNEIE == 1
+	if(USART2->SR & (1<<5)) {
+		// reset RXNEIE
+		USART2->SR &= ~(1<<5);
+
+		interruptCount++;
+		
+		kprintf((uint8_t*)"%s",(uint8_t*)"USART2_Handler [Called]");
+		kprintf((uint8_t *)"%d", (uint8_t *)&interruptCount);
+
+		if(flag){
+			flag = false;
+			index = 0;
+		}
+		
+		if(!flag){
+			temp = USART2->DR;
+
+			if(temp == '\r') {
+				flag = true;
+				input[index] = '\n';
+
+				kprintf((uint8_t*)"%s",(uint8_t*)&input);
+
+				if(isEqual(input, disable_nvic, index)) {
+					__NVIC_DisableIRQn(USART2_IRQn);
+				}
+				else if(isEqual(input, mask_all, index)) {
+					__disable_irq();
+				}
+				else if(isEqual(input, set_basepri, index)) {
+					// __disable_irq();
+				}
+				
+			}
+
+			else{
+				input[index++] = temp;
+			}
+		}
+	}
+}
+
 void kmain(void) {
 	__sys_init();
 
@@ -282,25 +394,18 @@ void kmain(void) {
 	kprintf((uint8_t*)"%s",(uint8_t*)"Welcome ...");
 
 	// SysTick Demo
-	int startTime = 0;
-	int endTime= 0;
-	int time = 0;
-	uint8_t c;
+	// int startTime = 0;
+	// int endTime= 0;
+	// int time = 0;
+	// uint8_t c;
 
-	SysTick_enable();
+	// SysTick_enable();
+
+	nvicDemo();
 
 	// Program Loop
 	while(1) {
-		startTime = SysTick_getTime();
-			
-		kprintf((uint8_t*)"%s",(uint8_t*)"Press Enter to Get Time (ms)");
-		kscanf((uint8_t*)"%c", &c);
-			
-		endTime = SysTick_getTime();
-		time += (endTime - startTime);
-		kprintf((uint8_t*)"%d",(uint8_t*)&time);
-
-		runSysTickTests();
+		
 		//you can change the following line by replacing a delay function
 		for(uint32_t i=0;i<1000000;i++){}
 	}
