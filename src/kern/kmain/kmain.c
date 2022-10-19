@@ -272,7 +272,7 @@ void sysTickDemo() {
 
 uint32_t interruptCount;
 
-bool flag;
+int flag;
 int index;
 char temp;
 char input[100];
@@ -289,32 +289,43 @@ char disable_nvic[] = "disable_nvic\n";
 void nvicDemo() {
 	uint8_t c;
 	uint32_t priority;
+	uint32_t status;
 	
 	kprintf((uint8_t*)"%s",(uint8_t*)"[NVIC Demo]\n");
-	kprintf((uint8_t*)"%s",(uint8_t*)"Enable USART2_IRQn? [Press Enter]");
+	kprintf((uint8_t*)"%s",(uint8_t*)"Enable USART2_IRQn?");
 	kscanf((uint8_t*)"%c", &c);
 
 	// RXNEIE = 1
 	USART2->CR1 |= (1 << 5);
-
 	kprintf((uint8_t*)"%s",(uint8_t*)"");
+
+	// __enable_irq
 
 	__enable_irq();
 	kprintf((uint8_t*)"%s",(uint8_t*)"__enable_irq() [Called]");
 
+	index = 0;
+	flag = 0;
+	interruptCount = 0;
+
+	// __NVIC_EnableIRQn
+
 	__NVIC_EnableIRQn(USART2_IRQn);
 	kprintf((uint8_t*)"%s",(uint8_t*)"__NVIC_EnableIRQn(USART2_IRQn) [Called]");
-
-	index = 0;
-	flag = false;
-	interruptCount = 0;
 	kprintf((uint8_t*)"%s",(uint8_t*)"USART2_IRQn [Enabled]");
+
+	kscanf((uint8_t*)"%c", &c);
+	kprintf((uint8_t*)"%s",(uint8_t*)"");
+
+	// __NVIC_GetPriority
 
 	kprintf((uint8_t*)"%s",(uint8_t*)"");
 	priority = __NVIC_GetPriority(USART2_IRQn);
 	kprintf((uint8_t*)"%s",(uint8_t*)"__NVIC_GetPriority(USART2_IRQn) [Called]");
 	kprintf((uint8_t*)"%s",(uint8_t*)"[Priority Received]");
 	kprintf((uint8_t*)"%d",(uint8_t*)&priority);
+
+	// __NVIC_SetPriority
 
 	kprintf((uint8_t*)"%s",(uint8_t*)"");
 	__NVIC_SetPriority(USART2_IRQn, 2);
@@ -328,15 +339,52 @@ void nvicDemo() {
 	kprintf((uint8_t*)"%d",(uint8_t*)&priority);
 
 	kprintf((uint8_t*)"%s",(uint8_t*)"");
-}
 
-bool isEqual(char a[], char b[], int len){
-	for (int i=0; i<=len; i++) {
-		if(a[i]!=b[i]) {
-			return false;
-		}
-	}
-	return true;
+	// PRIMASK
+
+	__set_PRIMASK(1);
+	kprintf((uint8_t*)"%s",(uint8_t*)"__set_PRIMASK(1) [Called]");
+	status = __get_PRIMASK();
+	kprintf((uint8_t*)"%s",(uint8_t*)"[PRIMASK Set]");
+	kprintf((uint8_t*)"%d",(uint8_t*)&status);
+
+	__set_PRIMASK(0);
+	kprintf((uint8_t*)"%s",(uint8_t*)"__set_PRIMASK(0) [Called]");
+	status = __get_PRIMASK();
+	kprintf((uint8_t*)"%s",(uint8_t*)"[PRIMASK Cleared]");
+	kprintf((uint8_t*)"%d",(uint8_t*)&status);
+
+	// FAULTMASK
+
+	__set_FAULTMASK(1);
+	kprintf((uint8_t*)"%s",(uint8_t*)"__set_FAULTMASK(1) [Called]");
+	status = __get_FAULTMASK();
+	kprintf((uint8_t*)"%s",(uint8_t*)"[FAULTMASK Set]");
+	kprintf((uint8_t*)"%d",(uint8_t*)&status);
+
+	__set_FAULTMASK(0);
+	kprintf((uint8_t*)"%s",(uint8_t*)"__set_FAULTMASK(0) [Called]");
+	status = __get_FAULTMASK();
+	kprintf((uint8_t*)"%s",(uint8_t*)"[FAULTMASK Cleared]");
+	kprintf((uint8_t*)"%d",(uint8_t*)&status);
+
+	// BASEPRI
+
+	kprintf((uint8_t*)"%s",(uint8_t*)"Enter BASEPRI Value:\n");
+	kscanf((uint8_t*)"%d", &priority);
+	kprintf((uint8_t*)"%d",(uint8_t*)&priority);
+
+	__set_BASEPRI(priority);
+	kprintf((uint8_t*)"%s",(uint8_t*)"__set_BASEPRI(value) [Called]");
+	priority = __get_BASEPRI();
+	kprintf((uint8_t*)"%s",(uint8_t*)"[BASEPRI Set]");
+	kprintf((uint8_t*)"%d",(uint8_t*)&priority);
+
+	__unset_BASEPRI(0);
+	kprintf((uint8_t*)"%s",(uint8_t*)"__unset_BASEPRI(0) [Called]");
+	priority = __get_BASEPRI();
+	kprintf((uint8_t*)"%s",(uint8_t*)"[BASEPRI Unset]");
+	kprintf((uint8_t*)"%d",(uint8_t*)&priority);
 }
 
 void USART2_Handler(void){
@@ -350,36 +398,7 @@ void USART2_Handler(void){
 		kprintf((uint8_t*)"%s",(uint8_t*)"USART2_Handler [Called]");
 		kprintf((uint8_t *)"%d", (uint8_t *)&interruptCount);
 
-		if(flag){
-			flag = false;
-			index = 0;
-		}
-		
-		if(!flag){
-			temp = USART2->DR;
-
-			if(temp == '\r') {
-				flag = true;
-				input[index] = '\n';
-
-				kprintf((uint8_t*)"%s",(uint8_t*)&input);
-
-				if(isEqual(input, disable_nvic, index)) {
-					__NVIC_DisableIRQn(USART2_IRQn);
-				}
-				else if(isEqual(input, mask_all, index)) {
-					__disable_irq();
-				}
-				else if(isEqual(input, set_basepri, index)) {
-					// __disable_irq();
-				}
-				
-			}
-
-			else{
-				input[index++] = temp;
-			}
-		}
+		__NVIC_DisableIRQn(USART2_IRQn);
 	}
 }
 
