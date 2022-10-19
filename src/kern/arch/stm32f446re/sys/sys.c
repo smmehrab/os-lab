@@ -2,6 +2,8 @@
 #include "../include/dev/usart.h"
 #include "../../../include/kstdio.h"
 
+/******************************************* SysTick *******************************************/
+
 volatile uint32_t mscount;
 
 // AHB (180 MHz)
@@ -93,4 +95,159 @@ void SysTick_Handler(void) {
     mscount += ((STK->LOAD+1)/(clockRateMHz*1000));
     // Debug
     // kprintf((uint8_t*)"%d", (uint8_t*)&mscount);
+}
+
+/******************************************* NVIC *******************************************/
+
+void __NVIC_SetPriority (IRQn_Type IRQn, uint32_t priority) {
+
+    /*
+    programming manual - p201
+    The processor implements only bits[7:4] of each field, 
+    bits[3:0] read as zero and ignore writes.
+    */
+
+    if (IRQn >= 0) {
+        NVIC->IP[IRQn] = (uint8_t)(priority << 4);
+    }
+
+    else {
+        /*
+        programming manual - p216
+        -------------------------------------------------------
+        Memory management fault     PRI_4     |     SHPR1
+        Bus fault                   PRI_5     |
+        Usage fault                 PRI_6     |
+
+        SVCall                      PRI_11    |     SHPR2
+
+        PendSV                      PRI_14    |     SHPR3
+        SysTick                     PRI_15    |
+        -------------------------------------------------------
+
+        So, IRQn & 15 = PRI
+        SHPR[12]
+        */
+
+        SCB->SHPR[(IRQn & 15)-4] = (uint8_t)(priority << 4);
+    }
+}
+
+uint32_t __NVIC_GetPriority(IRQn_Type IRQn) {
+    uint32_t priority;
+    if (IRQn >= 0) {
+        priority = (NVIC->IP[IRQn] >> 4);
+    }
+    else {
+        priority = (SCB->SHPR[(IRQn & 15)-4] >> 4);
+    }
+    return priority;
+}
+
+void __NVIC_EnableIRQn(IRQn_Type IRQn) {
+    uint32_t index = IRQn >> 5;
+    uint32_t offset = IRQn % 32;
+    NVIC->ISER[index] = (1 << offset);
+}
+
+void __NVIC_DisableIRQn(IRQn_Type IRQn)  {
+    uint32_t index = IRQn >> 5;
+    uint32_t offset = IRQn % 32;
+    NVIC->ICER[index] = (1 << offset);
+}
+
+/*
+- The PRIMASK register prevents activation of all exceptions with configurable priority.
+
+- The FAULTMASK register prevents activation of all exceptions except for Non-Maskable
+  Interrupt (NMI).
+
+- The BASEPRI register defines the minimum priority for exception processing. When
+  BASEPRI is set to a nonzero value, it prevents the activation of all exceptions with same or
+  lower priority level as the BASEPRI value.
+*/
+
+void __disable_irq(void) {
+    __ASM volatile ("cpsid i" : : : "memory");
+}
+
+void __set_BASEPRI(uint32_t value) {
+    /*
+    programming manual - p24
+    BASEPRI[7:4] Priority mask bits
+    */
+    value = (value << 4);
+    __ASM volatile("MSR BASEPRI, %0" : : "r" (value) : "memory");
+}
+
+void __enable_irq(void) {
+    __ASM volatile ("cpsie i" : : : "memory");
+}
+
+uint32_t __get_BASEPRI(void) {
+    uint32_t value;
+    __ASM volatile ("MRS %0, basepri" : "=r" (value));
+    /*
+    programming manual - p24
+    BASEPRI[7:4] Priority mask bits
+    */
+    value = (value >> 4);
+    return(value);
+}
+
+void __unset_BASEPRI(uint32_t value) {
+    // cmsis
+    __ASM volatile ("MSR BASEPRI, %0" : : "r" (value) : "memory");
+}
+
+void __set_PRIMASK(uint32_t priMask) {
+    // cmsis
+    __ASM volatile ("MSR PRIMASK, %0" : : "r" (priMask) : "memory");
+}
+
+uint32_t __get_PRIMASK(void) {
+    // cmsis
+    uint32_t value;
+    __ASM volatile ("MRS %0, PRIMASK" : "=r" (value));
+    return value;
+}
+
+void __enable_fault_irq(void) {
+    // cmsis
+    __ASM volatile ("cpsie f" : : : "memory");
+}
+
+void __set_FAULTMASK(uint32_t faultMask) {
+    // cmsis
+    __ASM volatile ("MSR faultmask, %0" : : "r" (faultMask) : "memory");
+}
+
+void __disable_fault_irq(void) {
+    // cmsis
+    __ASM volatile ("cpsid f" : : : "memory");
+}
+
+uint32_t __get_FAULTMASK(void) {
+    // cmsis
+    uint32_t value;
+    __ASM volatile ("MRS %0, faultmask" : "=r" (value));
+    return value;
+}
+
+void __clear_pending_IRQn(IRQn_Type IRQn) {
+    uint32_t index = IRQn >> 5;
+    uint32_t offset = IRQn % 32;
+    NVIC->ICPR[index] |= (uint32_t)(1 << offset);
+}
+
+uint32_t __get_pending_IRQn(IRQn_Type IRQn) {
+    uint32_t index = IRQn >> 5;
+    uint32_t offset = IRQn % 32;
+    return ((NVIC->ISPR[index]) & (uint32_t)(1 << offset));
+}
+
+uint32_t __NVIC_GetActive(IRQn_Type IRQn) {
+    uint32_t index = IRQn >> 5;
+    uint32_t offset = IRQn % 32;
+    return (NVIC->IABR[index] & (1 << offset));
 }
