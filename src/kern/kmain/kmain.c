@@ -7,8 +7,11 @@
 
 /*
 void nvicDemo();
-USART2_Handler();
 kmain();
+
+USART2_Handler();
+void NMI_Handler(void);
+void PendSV_Handler(void);
 */
 
 /***************************************************************/
@@ -272,27 +275,13 @@ void sysTickDemo() {
 
 uint32_t interruptCount;
 
-int flag;
-int index;
-char temp;
-char input[100];
-
-char mask_all[] = "mask_all\n";
-char unmask_all[] = "unmask_all\n";
-
-char set_primask[] = "set_primask\n";
-char set_basepri[] = "set_basepri\n";
-char set_faultmask[] = "set_faultmask\n";
-
-char disable_nvic[] = "disable_nvic\n";
-
 void nvicDemo() {
 	uint8_t c;
 	uint32_t priority;
 	uint32_t status;
 	
 	kprintf((uint8_t*)"%s",(uint8_t*)"[NVIC Demo]\n");
-	kprintf((uint8_t*)"%s",(uint8_t*)"Enable USART2_IRQn?");
+	kprintf((uint8_t*)"%s",(uint8_t*)"Start?");
 	kscanf((uint8_t*)"%c", &c);
 
 	// RXNEIE = 1
@@ -304,8 +293,6 @@ void nvicDemo() {
 	__enable_irq();
 	kprintf((uint8_t*)"%s",(uint8_t*)"__enable_irq() [Called]");
 
-	index = 0;
-	flag = 0;
 	interruptCount = 0;
 
 	// __NVIC_EnableIRQn
@@ -387,21 +374,6 @@ void nvicDemo() {
 	kprintf((uint8_t*)"%d",(uint8_t*)&priority);
 }
 
-void USART2_Handler(void){
-	// RXNEIE == 1
-	if(USART2->SR & (1<<5)) {
-		// reset RXNEIE
-		USART2->SR &= ~(1<<5);
-
-		interruptCount++;
-		
-		kprintf((uint8_t*)"%s",(uint8_t*)"USART2_Handler [Called]");
-		kprintf((uint8_t *)"%d", (uint8_t *)&interruptCount);
-
-		__NVIC_DisableIRQn(USART2_IRQn);
-	}
-}
-
 void kmain(void) {
 	__sys_init();
 
@@ -429,3 +401,32 @@ void kmain(void) {
 		for(uint32_t i=0;i<1000000;i++){}
 	}
 }
+
+/***************************************************************/
+// Interrupt Handlers
+/***************************************************************/
+
+void USART2_Handler(void){
+	// RXNEIE == 1
+	if(USART2->SR & (1<<5)) {
+		// reset RXNEIE
+		USART2->SR &= ~(1<<5);
+
+		interruptCount++;
+
+		kprintf((uint8_t*)"%s",(uint8_t*)"USART2_Handler [Called]");
+		kprintf((uint8_t *)"%d", (uint8_t *)&interruptCount);
+
+		__NVIC_DisableIRQn(USART2_IRQn);
+	}
+}
+
+// void NMI_Handler(void) {
+//     SCB->ICSR &= ~(1 << 31);
+//     kprintf((uint8_t*)"%s",(uint8_t*)"NMI_Handler [Called]");
+// }
+
+// void PendSV_Handler(void) {
+//     SCB->ICSR |= (1 << 27);
+//     kprintf((uint8_t*)"%s",(uint8_t*)"PendSV_Handler [Called]");
+// }
