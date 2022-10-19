@@ -257,7 +257,7 @@ typedef enum {
 
 /************************* Function Definitions *************************/
 
-// 17 Functions
+// 18 Functions
 
 void __NVIC_SetPriority (IRQn_Type IRQn, uint32_t priority);
 uint32_t __NVIC_GetPriority(IRQn_Type IRQn);
