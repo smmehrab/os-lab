@@ -184,6 +184,11 @@ void __enable_irq(void) {
     __ASM volatile ("cpsie i" : : : "memory");
 }
 
+uint32_t  __get_BASEPRI(void) {
+    uint32_t value __ASM("basepri");
+    return value;
+}
+
 void __unset_BASEPRI(uint32_t value) {
     // cmsis
     __ASM volatile ("MSR BASEPRI, %0" : : "r" (value) : "memory");
