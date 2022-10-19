@@ -184,9 +184,15 @@ void __enable_irq(void) {
     __ASM volatile ("cpsie i" : : : "memory");
 }
 
-uint32_t  __get_BASEPRI(void) {
-    uint32_t value __ASM("basepri");
-    return value;
+uint32_t __get_BASEPRI(void) {
+    uint32_t value;
+    __ASM volatile ("MRS %0, basepri" : "=r" (value));
+    /*
+    programming manual - p24
+    BASEPRI[7:4] Priority mask bits
+    */
+    value = (value >> 4);
+    return(value);
 }
 
 void __unset_BASEPRI(uint32_t value) {

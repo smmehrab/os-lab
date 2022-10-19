@@ -266,7 +266,7 @@ void __NVIC_DisableIRQn(IRQn_Type IRQn);
 void __disable_irq(void);
 void __set_BASEPRI(uint32_t value);
 void __enable_irq(void);
-uint32_t  __get_BASEPRI(void);
+uint32_t __get_BASEPRI(void);
 void __unset_BASEPRI(uint32_t value);
 void __set_PRIMASK(uint32_t);
 uint32_t __get_PRIMASK(void);
